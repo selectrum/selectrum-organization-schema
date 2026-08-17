@@ -1,0 +1,13 @@
+﻿# OS / editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+*.code-workspace
+
+# Never commit deployment credentials
+.vscode/
+sftp.json
+ftp-config.json
+
+# NOTE: lib/plugin-update-checker/ must stay committed.
+# The plugin cannot check for updates without it.

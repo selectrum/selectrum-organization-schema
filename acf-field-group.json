@@ -1,0 +1,1026 @@
+[
+  {
+    "key": "group_organization_localbusiness_schema",
+    "title": "Organization & Local Business Schema",
+    "fields": [
+      {
+        "key": "field_c11ee39427a7c",
+        "label": "Organization",
+        "name": "",
+        "aria-label": "",
+        "type": "tab",
+        "instructions": "",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        },
+        "placement": "top",
+        "endpoint": 0
+      },
+      {
+        "key": "field_07a35ff76ddac",
+        "label": "Enable Organization Schema",
+        "name": "schema_enable_schema",
+        "aria-label": "",
+        "type": "true_false",
+        "instructions": "Turn the main Organization JSON-LD entity on or off.",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "50",
+          "class": "",
+          "id": ""
+        },
+        "message": "",
+        "default_value": 1,
+        "ui": 1,
+        "ui_on_text": "Enabled",
+        "ui_off_text": "Disabled"
+      },
+      {
+        "key": "field_2bdd2bfb53288",
+        "label": "Organization Schema @ID",
+        "name": "schema_id",
+        "aria-label": "",
+        "type": "text",
+        "instructions": "The LocalBusiness locations will reference this value through branchOf.",
+        "required": 1,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "50",
+          "class": "",
+          "id": ""
+        },
+        "default_value": "",
+        "maxlength": "",
+        "placeholder": "https://example.com/#organization",
+        "prepend": "",
+        "append": ""
+      },
+      {
+        "key": "field_e29b063cd3757",
+        "label": "Organization Name",
+        "name": "schema_name",
+        "aria-label": "",
+        "type": "text",
+        "instructions": "",
+        "required": 1,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "33",
+          "class": "",
+          "id": ""
+        },
+        "default_value": "",
+        "maxlength": "",
+        "placeholder": "",
+        "prepend": "",
+        "append": ""
+      },
+      {
+        "key": "field_668c27a82d0eb",
+        "label": "Legal Name",
+        "name": "schema_legal_name",
+        "aria-label": "",
+        "type": "text",
+        "instructions": "",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "33",
+          "class": "",
+          "id": ""
+        },
+        "default_value": "",
+        "maxlength": "",
+        "placeholder": "",
+        "prepend": "",
+        "append": ""
+      },
+      {
+        "key": "field_520987b5b1810",
+        "label": "Alternate Name",
+        "name": "schema_alternate_name",
+        "aria-label": "",
+        "type": "text",
+        "instructions": "",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "33",
+          "class": "",
+          "id": ""
+        },
+        "default_value": "",
+        "maxlength": "",
+        "placeholder": "",
+        "prepend": "",
+        "append": ""
+      },
+      {
+        "key": "field_7d60d86cafa8c",
+        "label": "Website URL",
+        "name": "schema_url",
+        "aria-label": "",
+        "type": "url",
+        "instructions": "",
+        "required": 1,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "33",
+          "class": "",
+          "id": ""
+        },
+        "default_value": "",
+        "placeholder": ""
+      },
+      {
+        "key": "field_1e967fb122849",
+        "label": "Description",
+        "name": "schema_description",
+        "aria-label": "",
+        "type": "textarea",
+        "instructions": "",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "33",
+          "class": "",
+          "id": ""
+        },
+        "default_value": "",
+        "maxlength": "",
+        "rows": 4,
+        "placeholder": "",
+        "new_lines": ""
+      },
+      {
+        "key": "field_8becddee0bdef",
+        "label": "Logo",
+        "name": "schema_logo",
+        "aria-label": "",
+        "type": "image",
+        "instructions": "",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "33",
+          "class": "",
+          "id": ""
+        },
+        "return_format": "array",
+        "library": "all",
+        "min_width": "",
+        "min_height": "",
+        "min_size": "",
+        "max_width": "",
+        "max_height": "",
+        "max_size": "",
+        "mime_types": "",
+        "preview_size": "medium"
+      },
+      {
+        "key": "field_7e8d7df5b61d8",
+        "label": "Founding Date",
+        "name": "schema_founding_date",
+        "aria-label": "",
+        "type": "text",
+        "instructions": "",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "33",
+          "class": "",
+          "id": ""
+        },
+        "default_value": "",
+        "maxlength": "",
+        "placeholder": "YYYY or YYYY-MM-DD",
+        "prepend": "",
+        "append": ""
+      },
+      {
+        "key": "field_bfb92b7d9dfef",
+        "label": "Telephone",
+        "name": "schema_telephone",
+        "aria-label": "",
+        "type": "text",
+        "instructions": "",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "33",
+          "class": "",
+          "id": ""
+        },
+        "default_value": "",
+        "maxlength": "",
+        "placeholder": "+1-000-000-0000",
+        "prepend": "",
+        "append": ""
+      },
+      {
+        "key": "field_bbcefc4752195",
+        "label": "Email",
+        "name": "schema_email",
+        "aria-label": "",
+        "type": "email",
+        "instructions": "",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "33",
+          "class": "",
+          "id": ""
+        },
+        "default_value": "",
+        "placeholder": "",
+        "prepend": "",
+        "append": ""
+      },
+      {
+        "key": "field_5519b13a92694",
+        "label": "Primary Address",
+        "name": "schema_address",
+        "aria-label": "",
+        "type": "group",
+        "instructions": "",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "50",
+          "class": "",
+          "id": ""
+        },
+        "layout": "block",
+        "sub_fields": [
+          {
+            "key": "field_63e526e5d1c62",
+            "label": "Street Address",
+            "name": "schema_street_address",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "70",
+              "class": "",
+              "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+          },
+          {
+            "key": "field_c92e60aa4f2d3",
+            "label": "City / Locality",
+            "name": "schema_address_locality",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "30",
+              "class": "",
+              "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+          },
+          {
+            "key": "field_1a0a2fe39a631",
+            "label": "Province / State / Region",
+            "name": "schema_address_region",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+          },
+          {
+            "key": "field_7eb704dfc00b7",
+            "label": "Postal Code",
+            "name": "schema_postal_code",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+          },
+          {
+            "key": "field_a40073ea23874",
+            "label": "Country Code",
+            "name": "schema_address_country",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "CA",
+            "prepend": "",
+            "append": ""
+          }
+        ]
+      },
+      {
+        "key": "field_e35436a32466b",
+        "label": "Social and Authority Profiles",
+        "name": "schema_same_as",
+        "aria-label": "",
+        "type": "repeater",
+        "instructions": "",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "50",
+          "class": "",
+          "id": ""
+        },
+        "collapsed": "",
+        "min": 0,
+        "max": 0,
+        "layout": "table",
+        "button_label": "Add Profile",
+        "rows_per_page": 20,
+        "sub_fields": [
+          {
+            "key": "field_acfa495516491",
+            "label": "Profile URL",
+            "name": "schema_url",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "",
+              "class": "",
+              "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+          }
+        ]
+      },
+      {
+        "key": "field_b5c4217abc961",
+        "label": "Additional JSON-LD Properties",
+        "name": "schema_additional_json_ld",
+        "aria-label": "",
+        "type": "textarea",
+        "instructions": "Optional valid JSON object containing additional Organization properties. Do not include @context, @type, or @id here.",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "50",
+          "class": "",
+          "id": ""
+        },
+        "default_value": "",
+        "maxlength": "",
+        "rows": 10,
+        "placeholder": "",
+        "new_lines": ""
+      },
+      {
+        "key": "field_f27ba2da573fb",
+        "label": "Local Business Locations",
+        "name": "",
+        "aria-label": "",
+        "type": "tab",
+        "instructions": "",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        },
+        "placement": "top",
+        "endpoint": 0
+      },
+      {
+        "key": "field_a41f43e265dd3",
+        "label": "Enable Local Business Schema",
+        "name": "schema_enable_local_business_schema",
+        "aria-label": "",
+        "type": "true_false",
+        "instructions": "Enable output for the locations listed below.",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        },
+        "message": "",
+        "default_value": 0,
+        "ui": 1,
+        "ui_on_text": "Enabled",
+        "ui_off_text": "Disabled"
+      },
+      {
+        "key": "field_25bd19bafecba",
+        "label": "Locations",
+        "name": "schema_local_business_locations",
+        "aria-label": "",
+        "type": "repeater",
+        "instructions": "",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        },
+        "collapsed": "field_acbdbd2dca2f5",
+        "min": 0,
+        "max": 0,
+        "layout": "row",
+        "button_label": "Add Location",
+        "rows_per_page": 20,
+        "sub_fields": [
+          {
+            "key": "field_ac0b2a840f127",
+            "label": "Enable This Location",
+            "name": "schema_enable_location",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "message": "",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "Enabled",
+            "ui_off_text": "Disabled"
+          },
+          {
+            "key": "field_cd734549e99c5",
+            "label": "Local Business Type",
+            "name": "schema_business_type",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "Choose the most specific applicable Schema.org subtype.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "choices": {
+              "LocalBusiness": "LocalBusiness",
+              "ProfessionalService": "ProfessionalService",
+              "Store": "Store",
+              "Restaurant": "Restaurant",
+              "MedicalBusiness": "MedicalBusiness",
+              "FinancialService": "FinancialService",
+              "HomeAndConstructionBusiness": "HomeAndConstructionBusiness",
+              "RealEstateAgent": "RealEstateAgent"
+            },
+            "default_value": "LocalBusiness",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 1,
+            "ui": 1,
+            "ajax": 0,
+            "placeholder": ""
+          },
+          {
+            "key": "field_1554a1ab77406",
+            "label": "Location Schema @ID",
+            "name": "schema_id",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Use a unique, stable ID for this location.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "https://example.com/locations/ottawa/#business",
+            "prepend": "",
+            "append": ""
+          },
+          {
+            "key": "field_acbdbd2dca2f5",
+            "label": "Location Name",
+            "name": "schema_name",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "Example Company — Ottawa",
+            "prepend": "",
+            "append": ""
+          },
+          {
+            "key": "field_796c0992d44d2",
+            "label": "Location URL",
+            "name": "schema_url",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "default_value": "",
+            "placeholder": "https://example.com/locations/ottawa/"
+          },
+          {
+            "key": "field_f049a93c9e979",
+            "label": "Location Image",
+            "name": "schema_image",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "return_format": "array",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": "",
+            "preview_size": "medium"
+          },
+          {
+            "key": "field_0586b8de6b3cb",
+            "label": "Telephone",
+            "name": "schema_telephone",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "+1-000-000-0000",
+            "prepend": "",
+            "append": ""
+          },
+          {
+            "key": "field_99db90030b087",
+            "label": "Email",
+            "name": "schema_email",
+            "aria-label": "",
+            "type": "email",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+          },
+          {
+            "key": "field_f7b8791632224",
+            "label": "Address",
+            "name": "schema_address",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+              {
+                "key": "field_d1711fd8862e6",
+                "label": "Street Address",
+                "name": "schema_street_address",
+                "aria-label": "",
+                "type": "text",
+                "instructions": "",
+                "required": 1,
+                "conditional_logic": 0,
+                "wrapper": {
+                  "width": "33",
+                  "class": "",
+                  "id": ""
+                },
+                "default_value": "",
+                "maxlength": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+              },
+              {
+                "key": "field_acaf3ff41db4c",
+                "label": "City / Locality",
+                "name": "schema_address_locality",
+                "aria-label": "",
+                "type": "text",
+                "instructions": "",
+                "required": 1,
+                "conditional_logic": 0,
+                "wrapper": {
+                  "width": "33",
+                  "class": "",
+                  "id": ""
+                },
+                "default_value": "",
+                "maxlength": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+              },
+              {
+                "key": "field_708a159585f39",
+                "label": "Province / State / Region",
+                "name": "schema_address_region",
+                "aria-label": "",
+                "type": "text",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                  "width": "33",
+                  "class": "",
+                  "id": ""
+                },
+                "default_value": "",
+                "maxlength": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+              },
+              {
+                "key": "field_4f2d93ce865d8",
+                "label": "Postal Code",
+                "name": "schema_postal_code",
+                "aria-label": "",
+                "type": "text",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                  "width": "33",
+                  "class": "",
+                  "id": ""
+                },
+                "default_value": "",
+                "maxlength": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+              },
+              {
+                "key": "field_c45d46d7a77c5",
+                "label": "Country Code",
+                "name": "schema_address_country",
+                "aria-label": "",
+                "type": "text",
+                "instructions": "",
+                "required": 1,
+                "conditional_logic": 0,
+                "wrapper": {
+                  "width": "33",
+                  "class": "",
+                  "id": ""
+                },
+                "default_value": "",
+                "maxlength": "",
+                "placeholder": "CA",
+                "prepend": "",
+                "append": ""
+              }
+            ]
+          },
+          {
+            "key": "field_5de9d4daeaeb4",
+            "label": "Latitude",
+            "name": "schema_latitude",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "default_value": "",
+            "min": "",
+            "max": "",
+            "step": "any",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+          },
+          {
+            "key": "field_e23813c82b2b5",
+            "label": "Longitude",
+            "name": "schema_longitude",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "default_value": "",
+            "min": "",
+            "max": "",
+            "step": "any",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+          },
+          {
+            "key": "field_0f3b62d2d3457",
+            "label": "Map URL",
+            "name": "schema_has_map",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Google Maps or equivalent location URL"
+          },
+          {
+            "key": "field_471bfe8f7a716",
+            "label": "Opening Hours",
+            "name": "schema_opening_hours",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "collapsed": "",
+            "min": 0,
+            "max": 0,
+            "layout": "row",
+            "button_label": "Add Hours",
+            "rows_per_page": 20,
+            "sub_fields": [
+              {
+                "key": "field_e7f8ac47215ae",
+                "label": "Days",
+                "name": "schema_day_of_week",
+                "aria-label": "",
+                "type": "select",
+                "instructions": "",
+                "required": 1,
+                "conditional_logic": 0,
+                "wrapper": {
+                  "width": "33",
+                  "class": "",
+                  "id": ""
+                },
+                "choices": {
+                  "Monday": "Monday",
+                  "Tuesday": "Tuesday",
+                  "Wednesday": "Wednesday",
+                  "Thursday": "Thursday",
+                  "Friday": "Friday",
+                  "Saturday": "Saturday",
+                  "Sunday": "Sunday"
+                },
+                "default_value": false,
+                "return_format": "value",
+                "multiple": 1,
+                "allow_null": 1,
+                "ui": 1,
+                "ajax": 0,
+                "placeholder": ""
+              },
+              {
+                "key": "field_bbe8895c23079",
+                "label": "Opens",
+                "name": "schema_opens",
+                "aria-label": "",
+                "type": "time_picker",
+                "instructions": "",
+                "required": 1,
+                "conditional_logic": 0,
+                "wrapper": {
+                  "width": "33",
+                  "class": "",
+                  "id": ""
+                },
+                "display_format": "H:i",
+                "return_format": "H:i"
+              },
+              {
+                "key": "field_cbadf92741768",
+                "label": "Closes",
+                "name": "schema_closes",
+                "aria-label": "",
+                "type": "time_picker",
+                "instructions": "",
+                "required": 1,
+                "conditional_logic": 0,
+                "wrapper": {
+                  "width": "33",
+                  "class": "",
+                  "id": ""
+                },
+                "display_format": "H:i",
+                "return_format": "H:i"
+              }
+            ]
+          },
+          {
+            "key": "field_9802b2e6acf50",
+            "label": "Price Range",
+            "name": "schema_price_range",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "$$",
+            "prepend": "",
+            "append": ""
+          },
+          {
+            "key": "field_205857e9993fe",
+            "label": "Areas Served",
+            "name": "schema_areas_served",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "collapsed": "",
+            "min": 0,
+            "max": 0,
+            "layout": "table",
+            "button_label": "Add Area",
+            "rows_per_page": 20,
+            "sub_fields": [
+              {
+                "key": "field_db02435ebe166",
+                "label": "Area",
+                "name": "schema_area",
+                "aria-label": "",
+                "type": "text",
+                "instructions": "",
+                "required": 1,
+                "conditional_logic": 0,
+                "wrapper": {
+                  "width": "33",
+                  "class": "",
+                  "id": ""
+                },
+                "default_value": "",
+                "maxlength": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+              }
+            ]
+          },
+          {
+            "key": "field_530a04b6e02c3",
+            "label": "Additional JSON-LD Properties",
+            "name": "schema_additional_json_ld",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Optional valid JSON object containing extra properties for this location. Do not include @context, @type, @id, or branchOf here.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+              "width": "33",
+              "class": "",
+              "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "rows": 8,
+            "placeholder": "",
+            "new_lines": ""
+          }
+        ]
+      }
+    ],
+    "location": [
+      [
+        {
+          "param": "options_page",
+          "operator": "==",
+          "value": "organization-schema-settings"
+        }
+      ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Main Organization schema plus optional LocalBusiness locations connected through branchOf. Requires ACF PRO for repeaters.",
+    "show_in_rest": 0,
+    "modified": 1786011388
+  }
+]
