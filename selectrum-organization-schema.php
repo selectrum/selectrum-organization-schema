@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Selectrum Organization Schema
  * Description: Adds an ACF PRO options page for Organization and LocalBusiness schema and outputs connected JSON-LD on the frontend.
- * Version: 1.0.1
+ * Version: 1.0.3
  * Author: Selectrum Communications
  * Text Domain: selectrum-organization-schema
  * Requires at least: 6.0
