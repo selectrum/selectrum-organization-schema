@@ -3,6 +3,8 @@
  * Frontend JSON-LD generation.
  */
 
+namespace Selectrum\OrganizationSchema;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -16,9 +18,11 @@ defined( 'ABSPATH' ) || exit;
  * @param mixed $value Value to clean.
  * @return mixed
  */
-function sos_schema_clean_value( $value ) {
+function clean_value( $value ) {
 	if ( is_array( $value ) ) {
-		$value = array_map( 'sos_schema_clean_value', $value );
+		foreach ( $value as $key => $item ) {
+			$value[ $key ] = clean_value( $item );
+		}
 
 		$value = array_filter(
 			$value,
@@ -43,7 +47,7 @@ function sos_schema_clean_value( $value ) {
  * @param string $url      Base URL. Defaults to the site home.
  * @return string
  */
-function sos_schema_entity_id( $fragment, $url = '' ) {
+function entity_id( $fragment, $url = '' ) {
 	if ( '' === $url ) {
 		$url = home_url( '/' );
 	}
@@ -54,18 +58,16 @@ function sos_schema_entity_id( $fragment, $url = '' ) {
 /**
  * Resolve the Organization @id.
  *
- * The "Organization Schema @ID" field is honoured when set, so existing
- * configurations keep working. When it is empty a canonical identifier is
- * generated, which removes the chance of a typo silently breaking every
- * branchOf reference in the graph.
+ * Always generated, never configurable. The value has to match Yoast's
+ * Schema_IDs::ORGANIZATION_HASH exactly, because that identity is what keeps
+ * Yoast's publisher and author references resolving to this Organization once
+ * Yoast's own Organization piece is removed. A hand-typed value would break
+ * that silently.
  *
- * @param array $fields Options-page fields.
  * @return string
  */
-function sos_schema_organization_id( $fields ) {
-	$override = esc_url_raw( $fields['schema_id'] ?? '' );
-
-	return '' !== $override ? $override : sos_schema_entity_id( 'organization' );
+function organization_id() {
+	return entity_id( 'organization' );
 }
 
 /**
@@ -73,7 +75,7 @@ function sos_schema_organization_id( $fields ) {
  *
  * @return string
  */
-function sos_schema_current_url() {
+function current_url() {
 	$url = '';
 
 	// Checked before is_home() so a blog-as-front-page resolves to the home URL.
@@ -86,7 +88,7 @@ function sos_schema_current_url() {
 		$url           = $posts_page_id ? get_permalink( $posts_page_id ) : home_url( '/' );
 	} elseif ( is_category() || is_tag() || is_tax() ) {
 		$term = get_queried_object();
-		$url  = $term instanceof WP_Term ? get_term_link( $term ) : '';
+		$url  = $term instanceof \WP_Term ? get_term_link( $term ) : '';
 	} elseif ( is_post_type_archive() ) {
 		$post_type = get_query_var( 'post_type' );
 
@@ -120,7 +122,7 @@ function sos_schema_current_url() {
  * @param mixed $image ACF image value.
  * @return string
  */
-function sos_schema_image_url( $image ) {
+function image_url( $image ) {
 	if ( is_array( $image ) && ! empty( $image['url'] ) ) {
 		return esc_url_raw( $image['url'] );
 	}
@@ -147,7 +149,7 @@ function sos_schema_image_url( $image ) {
  * @param array  $reserved_keys Keys that cannot be overridden.
  * @return array
  */
-function sos_schema_decode_additional_properties( $json, $reserved_keys = array() ) {
+function decode_additional_properties( $json, $reserved_keys = array() ) {
 	if ( ! is_string( $json ) || '' === trim( $json ) ) {
 		return array();
 	}
@@ -171,19 +173,19 @@ function sos_schema_decode_additional_properties( $json, $reserved_keys = array(
  * @param mixed $address ACF group field value.
  * @return array
  */
-function sos_schema_build_address( $address ) {
+function build_address( $address ) {
 	if ( ! is_array( $address ) ) {
 		return array();
 	}
 
-	return sos_schema_clean_value(
+	return clean_value(
 		array(
 			'@type'           => 'PostalAddress',
-			'streetAddress'    => sanitize_text_field( $address['schema_street_address'] ?? '' ),
-			'addressLocality'  => sanitize_text_field( $address['schema_address_locality'] ?? '' ),
-			'addressRegion'    => sanitize_text_field( $address['schema_address_region'] ?? '' ),
-			'postalCode'       => sanitize_text_field( $address['schema_postal_code'] ?? '' ),
-			'addressCountry'   => strtoupper( sanitize_text_field( $address['schema_address_country'] ?? '' ) ),
+			'streetAddress'    => sanitize_text_field( $address['selectrum_os_street_address'] ?? '' ),
+			'addressLocality'  => sanitize_text_field( $address['selectrum_os_address_locality'] ?? '' ),
+			'addressRegion'    => sanitize_text_field( $address['selectrum_os_address_region'] ?? '' ),
+			'postalCode'       => sanitize_text_field( $address['selectrum_os_postal_code'] ?? '' ),
+			'addressCountry'   => strtoupper( sanitize_text_field( $address['selectrum_os_address_country'] ?? '' ) ),
 		)
 	);
 }
@@ -194,7 +196,7 @@ function sos_schema_build_address( $address ) {
  * @param mixed $rows ACF repeater value.
  * @return array
  */
-function sos_schema_profile_urls( $rows ) {
+function profile_urls( $rows ) {
 	if ( ! is_array( $rows ) ) {
 		return array();
 	}
@@ -202,7 +204,7 @@ function sos_schema_profile_urls( $rows ) {
 	$urls = array();
 
 	foreach ( $rows as $row ) {
-		$url = esc_url_raw( $row['schema_url'] ?? '' );
+		$url = esc_url_raw( $row['selectrum_os_url'] ?? '' );
 
 		if ( $url ) {
 			$urls[] = $url;
@@ -218,7 +220,7 @@ function sos_schema_profile_urls( $rows ) {
  * @param mixed $rows ACF opening-hours repeater value.
  * @return array
  */
-function sos_schema_opening_hours( $rows ) {
+function opening_hours( $rows ) {
 	if ( ! is_array( $rows ) ) {
 		return array();
 	}
@@ -226,7 +228,7 @@ function sos_schema_opening_hours( $rows ) {
 	$hours = array();
 
 	foreach ( $rows as $row ) {
-		$days = $row['schema_day_of_week'] ?? array();
+		$days = $row['selectrum_os_day_of_week'] ?? array();
 
 		if ( is_string( $days ) && '' !== $days ) {
 			$days = array( $days );
@@ -242,8 +244,8 @@ function sos_schema_opening_hours( $rows ) {
 			)
 		);
 
-		$opens  = sanitize_text_field( $row['schema_opens'] ?? '' );
-		$closes = sanitize_text_field( $row['schema_closes'] ?? '' );
+		$opens  = sanitize_text_field( $row['selectrum_os_opens'] ?? '' );
+		$closes = sanitize_text_field( $row['selectrum_os_closes'] ?? '' );
 
 		if ( empty( $days ) || ! $opens || ! $closes ) {
 			continue;
@@ -266,7 +268,7 @@ function sos_schema_opening_hours( $rows ) {
  * @param mixed $rows ACF areas-served repeater value.
  * @return array
  */
-function sos_schema_areas_served( $rows ) {
+function areas_served( $rows ) {
 	if ( ! is_array( $rows ) ) {
 		return array();
 	}
@@ -274,7 +276,7 @@ function sos_schema_areas_served( $rows ) {
 	$areas = array();
 
 	foreach ( $rows as $row ) {
-		$area = sanitize_text_field( $row['schema_area'] ?? '' );
+		$area = sanitize_text_field( $row['selectrum_os_area'] ?? '' );
 
 		if ( $area ) {
 			$areas[] = $area;
@@ -290,14 +292,14 @@ function sos_schema_areas_served( $rows ) {
  * @param array $fields Options-page fields.
  * @return array
  */
-function sos_schema_build_organization( $fields ) {
-	if ( empty( $fields['schema_enable_schema'] ) ) {
+function build_organization( $fields ) {
+	if ( empty( $fields['selectrum_os_enable_schema'] ) ) {
 		return array();
 	}
 
-	$schema_id = sos_schema_organization_id( $fields );
-	$name      = sanitize_text_field( $fields['schema_name'] ?? '' );
-	$url       = esc_url_raw( $fields['schema_url'] ?? '' );
+	$schema_id = organization_id();
+	$name      = sanitize_text_field( $fields['selectrum_os_name'] ?? '' );
+	$url       = esc_url_raw( $fields['selectrum_os_url'] ?? '' );
 
 	// Avoid outputting an incomplete primary entity. The @id always resolves
 	// now, so only the descriptive fields are worth checking.
@@ -309,27 +311,27 @@ function sos_schema_build_organization( $fields ) {
 		'@type'         => 'Organization',
 		'@id'           => $schema_id,
 		'name'          => $name,
-		'legalName'     => sanitize_text_field( $fields['schema_legal_name'] ?? '' ),
-		'alternateName' => sanitize_text_field( $fields['schema_alternate_name'] ?? '' ),
+		'legalName'     => sanitize_text_field( $fields['selectrum_os_legal_name'] ?? '' ),
+		'alternateName' => sanitize_text_field( $fields['selectrum_os_alternate_name'] ?? '' ),
 		'url'           => $url,
-		'description'   => sanitize_textarea_field( $fields['schema_description'] ?? '' ),
-		'logo'          => sos_schema_image_url( $fields['schema_logo'] ?? '' ),
-		'foundingDate'  => sanitize_text_field( $fields['schema_founding_date'] ?? '' ),
-		'telephone'     => sanitize_text_field( $fields['schema_telephone'] ?? '' ),
-		'email'         => sanitize_email( $fields['schema_email'] ?? '' ),
-		'address'       => sos_schema_build_address( $fields['schema_address'] ?? array() ),
-		'sameAs'        => sos_schema_profile_urls( $fields['schema_same_as'] ?? array() ),
+		'description'   => sanitize_textarea_field( $fields['selectrum_os_description'] ?? '' ),
+		'logo'          => image_url( $fields['selectrum_os_logo'] ?? '' ),
+		'foundingDate'  => sanitize_text_field( $fields['selectrum_os_founding_date'] ?? '' ),
+		'telephone'     => sanitize_text_field( $fields['selectrum_os_telephone'] ?? '' ),
+		'email'         => sanitize_email( $fields['selectrum_os_email'] ?? '' ),
+		'address'       => build_address( $fields['selectrum_os_address'] ?? array() ),
+		'sameAs'        => profile_urls( $fields['selectrum_os_same_as'] ?? array() ),
 	);
 
-	$additional = sos_schema_decode_additional_properties(
-		$fields['schema_additional_json_ld'] ?? '',
+	$additional = decode_additional_properties(
+		$fields['selectrum_os_additional_json_ld'] ?? '',
 		array( '@context', '@type', '@id' )
 	);
 
 	// Structured ACF fields take priority over additional properties.
 	$organization = array_merge( $additional, $organization );
 
-	return sos_schema_clean_value( $organization );
+	return clean_value( $organization );
 }
 
 /**
@@ -340,11 +342,11 @@ function sos_schema_build_organization( $fields ) {
  * @param bool   $link_to_org     Whether the Organization is being emitted.
  * @return array
  */
-function sos_schema_build_local_businesses( $fields, $organization_id, $link_to_org ) {
+function build_local_businesses( $fields, $organization_id, $link_to_org ) {
 	if (
-		empty( $fields['schema_enable_local_business_schema'] ) ||
-		empty( $fields['schema_local_business_locations'] ) ||
-		! is_array( $fields['schema_local_business_locations'] )
+		empty( $fields['selectrum_os_enable_local_business_schema'] ) ||
+		empty( $fields['selectrum_os_local_business_locations'] ) ||
+		! is_array( $fields['selectrum_os_local_business_locations'] )
 	) {
 		return array();
 	}
@@ -361,24 +363,24 @@ function sos_schema_build_local_businesses( $fields, $organization_id, $link_to_
 		'RealEstateAgent',
 	);
 
-	foreach ( $fields['schema_local_business_locations'] as $location ) {
-		if ( empty( $location['schema_enable_location'] ) ) {
+	foreach ( $fields['selectrum_os_local_business_locations'] as $location ) {
+		if ( empty( $location['selectrum_os_enable_location'] ) ) {
 			continue;
 		}
 
-		$type = sanitize_text_field( $location['schema_business_type'] ?? 'LocalBusiness' );
+		$type = sanitize_text_field( $location['selectrum_os_business_type'] ?? 'LocalBusiness' );
 
 		if ( ! in_array( $type, $allowed_types, true ) ) {
 			$type = 'LocalBusiness';
 		}
 
-		$name      = sanitize_text_field( $location['schema_name'] ?? '' );
-		$schema_id = esc_url_raw( $location['schema_id'] ?? '' );
-		$address   = sos_schema_build_address( $location['schema_address'] ?? array() );
+		$name      = sanitize_text_field( $location['selectrum_os_name'] ?? '' );
+		$schema_id = esc_url_raw( $location['selectrum_os_id'] ?? '' );
+		$address   = build_address( $location['selectrum_os_address'] ?? array() );
 
 		// Derive a stable identifier from the location name when none is given.
 		if ( '' === $schema_id && '' !== $name ) {
-			$schema_id = sos_schema_entity_id( 'localbusiness-' . sanitize_title( $name ) );
+			$schema_id = entity_id( 'localbusiness-' . sanitize_title( $name ) );
 		}
 
 		// A location needs a name and a usable address.
@@ -386,8 +388,8 @@ function sos_schema_build_local_businesses( $fields, $organization_id, $link_to_
 			continue;
 		}
 
-		$latitude  = $location['schema_latitude'] ?? '';
-		$longitude = $location['schema_longitude'] ?? '';
+		$latitude  = $location['selectrum_os_latitude'] ?? '';
+		$longitude = $location['selectrum_os_longitude'] ?? '';
 		$geo       = array();
 
 		if ( is_numeric( $latitude ) && is_numeric( $longitude ) ) {
@@ -402,19 +404,19 @@ function sos_schema_build_local_businesses( $fields, $organization_id, $link_to_
 			'@type'        => $type,
 			'@id'          => $schema_id,
 			'name'         => $name,
-			'url'          => esc_url_raw( $location['schema_url'] ?? '' ),
-			'image'        => sos_schema_image_url( $location['schema_image'] ?? '' ),
-			'telephone'    => sanitize_text_field( $location['schema_telephone'] ?? '' ),
-			'email'        => sanitize_email( $location['schema_email'] ?? '' ),
+			'url'          => esc_url_raw( $location['selectrum_os_url'] ?? '' ),
+			'image'        => image_url( $location['selectrum_os_image'] ?? '' ),
+			'telephone'    => sanitize_text_field( $location['selectrum_os_telephone'] ?? '' ),
+			'email'        => sanitize_email( $location['selectrum_os_email'] ?? '' ),
 			'address'      => $address,
 			'geo'          => $geo,
-			'hasMap'       => esc_url_raw( $location['schema_has_map'] ?? '' ),
-			'openingHoursSpecification' => sos_schema_opening_hours(
-				$location['schema_opening_hours'] ?? array()
+			'hasMap'       => esc_url_raw( $location['selectrum_os_has_map'] ?? '' ),
+			'openingHoursSpecification' => opening_hours(
+				$location['selectrum_os_opening_hours'] ?? array()
 			),
-			'priceRange'   => sanitize_text_field( $location['schema_price_range'] ?? '' ),
-			'areaServed'   => sos_schema_areas_served(
-				$location['schema_areas_served'] ?? array()
+			'priceRange'   => sanitize_text_field( $location['selectrum_os_price_range'] ?? '' ),
+			'areaServed'   => areas_served(
+				$location['selectrum_os_areas_served'] ?? array()
 			),
 		);
 
@@ -424,14 +426,14 @@ function sos_schema_build_local_businesses( $fields, $organization_id, $link_to_
 			);
 		}
 
-		$additional = sos_schema_decode_additional_properties(
-			$location['schema_additional_json_ld'] ?? '',
+		$additional = decode_additional_properties(
+			$location['selectrum_os_additional_json_ld'] ?? '',
 			array( '@context', '@type', '@id', 'branchOf' )
 		);
 
 		// Structured ACF fields take priority over additional properties.
 		$entity = array_merge( $additional, $entity );
-		$entity = sos_schema_clean_value( $entity );
+		$entity = clean_value( $entity );
 
 		if ( $entity ) {
 			$entities[] = $entity;
@@ -449,10 +451,10 @@ function sos_schema_build_local_businesses( $fields, $organization_id, $link_to_
  *
  * @return array
  */
-function sos_schema_breadcrumb_singular_crumbs() {
+function breadcrumb_singular_crumbs() {
 	$post = get_queried_object();
 
-	if ( ! $post instanceof WP_Post ) {
+	if ( ! $post instanceof \WP_Post ) {
 		return array();
 	}
 
@@ -496,10 +498,10 @@ function sos_schema_breadcrumb_singular_crumbs() {
  *
  * @return array
  */
-function sos_schema_breadcrumb_term_crumbs() {
+function breadcrumb_term_crumbs() {
 	$term = get_queried_object();
 
-	if ( ! $term instanceof WP_Term ) {
+	if ( ! $term instanceof \WP_Term ) {
 		return array();
 	}
 
@@ -509,7 +511,7 @@ function sos_schema_breadcrumb_term_crumbs() {
 	foreach ( $ancestors as $ancestor_id ) {
 		$ancestor = get_term( $ancestor_id, $term->taxonomy );
 
-		if ( $ancestor instanceof WP_Term ) {
+		if ( $ancestor instanceof \WP_Term ) {
 			$crumbs[] = array(
 				'name' => $ancestor->name,
 				'url'  => get_term_link( $ancestor ),
@@ -534,8 +536,8 @@ function sos_schema_breadcrumb_term_crumbs() {
  * @param array $fields Options-page fields.
  * @return array
  */
-function sos_schema_breadcrumb_trail( $fields ) {
-	$home_name = sanitize_text_field( $fields['schema_name'] ?? '' );
+function breadcrumb_trail( $fields ) {
+	$home_name = sanitize_text_field( $fields['selectrum_os_name'] ?? '' );
 
 	if ( '' === $home_name ) {
 		$home_name = get_bloginfo( 'name' );
@@ -563,11 +565,11 @@ function sos_schema_breadcrumb_trail( $fields ) {
 	}
 
 	if ( is_singular() ) {
-		return array_merge( $trail, sos_schema_breadcrumb_singular_crumbs() );
+		return array_merge( $trail, breadcrumb_singular_crumbs() );
 	}
 
 	if ( is_category() || is_tag() || is_tax() ) {
-		return array_merge( $trail, sos_schema_breadcrumb_term_crumbs() );
+		return array_merge( $trail, breadcrumb_term_crumbs() );
 	}
 
 	if ( is_post_type_archive() ) {
@@ -593,7 +595,7 @@ function sos_schema_breadcrumb_trail( $fields ) {
 	if ( is_author() ) {
 		$author = get_queried_object();
 
-		if ( $author instanceof WP_User ) {
+		if ( $author instanceof \WP_User ) {
 			$trail[] = array(
 				'name' => $author->display_name,
 				'url'  => get_author_posts_url( $author->ID ),
@@ -643,8 +645,8 @@ function sos_schema_breadcrumb_trail( $fields ) {
  * @param array $fields Options-page fields.
  * @return array
  */
-function sos_schema_build_breadcrumb( $fields ) {
-	if ( empty( $fields['schema_enable_breadcrumb_schema'] ) ) {
+function build_breadcrumb( $fields ) {
+	if ( empty( $fields['selectrum_os_enable_breadcrumb_schema'] ) ) {
 		return array();
 	}
 
@@ -657,7 +659,7 @@ function sos_schema_build_breadcrumb( $fields ) {
 	$items    = array();
 	$position = 1;
 
-	foreach ( sos_schema_breadcrumb_trail( $fields ) as $crumb ) {
+	foreach ( breadcrumb_trail( $fields ) as $crumb ) {
 		$name = sanitize_text_field( $crumb['name'] ?? '' );
 		$url  = $crumb['url'] ?? '';
 
@@ -685,7 +687,7 @@ function sos_schema_build_breadcrumb( $fields ) {
 
 	return array(
 		'@type'           => 'BreadcrumbList',
-		'@id'             => sos_schema_entity_id( 'breadcrumb', sos_schema_current_url() ),
+		'@id'             => entity_id( 'breadcrumb', current_url() ),
 		'itemListElement' => $items,
 	);
 }
@@ -697,7 +699,7 @@ function sos_schema_build_breadcrumb( $fields ) {
  * @param string $page_url      URL the image belongs to, used for the @id.
  * @return array
  */
-function sos_schema_build_image_object( $attachment_id, $page_url ) {
+function build_image_object( $attachment_id, $page_url ) {
 	$source = wp_get_attachment_image_src( (int) $attachment_id, 'full' );
 
 	if ( ! is_array( $source ) || empty( $source[0] ) ) {
@@ -706,10 +708,10 @@ function sos_schema_build_image_object( $attachment_id, $page_url ) {
 
 	$caption = wp_get_attachment_caption( (int) $attachment_id );
 
-	return sos_schema_clean_value(
+	return clean_value(
 		array(
 			'@type'      => 'ImageObject',
-			'@id'        => sos_schema_entity_id( 'primaryimage', $page_url ),
+			'@id'        => entity_id( 'primaryimage', $page_url ),
 			'url'        => esc_url_raw( $source[0] ),
 			'contentUrl' => esc_url_raw( $source[0] ),
 			'width'      => (int) $source[1],
@@ -725,7 +727,7 @@ function sos_schema_build_image_object( $attachment_id, $page_url ) {
  * @param string $page_url Canonical URL of the current request.
  * @return array
  */
-function sos_schema_build_primary_image( $page_url ) {
+function build_primary_image( $page_url ) {
 	if ( ! is_singular() || '' === $page_url ) {
 		return array();
 	}
@@ -736,7 +738,7 @@ function sos_schema_build_primary_image( $page_url ) {
 		return array();
 	}
 
-	return sos_schema_build_image_object( $thumbnail_id, $page_url );
+	return build_image_object( $thumbnail_id, $page_url );
 }
 
 /**
@@ -750,8 +752,8 @@ function sos_schema_build_primary_image( $page_url ) {
  * @param string $organization_id Organization @id, or an empty string.
  * @return array
  */
-function sos_schema_build_website( $fields, $organization_id ) {
-	$name = sanitize_text_field( $fields['schema_name'] ?? '' );
+function build_website( $fields, $organization_id ) {
+	$name = sanitize_text_field( $fields['selectrum_os_name'] ?? '' );
 
 	if ( '' === $name ) {
 		$name = get_bloginfo( 'name' );
@@ -759,7 +761,7 @@ function sos_schema_build_website( $fields, $organization_id ) {
 
 	$website = array(
 		'@type'       => 'WebSite',
-		'@id'         => sos_schema_entity_id( 'website' ),
+		'@id'         => entity_id( 'website' ),
 		'url'         => home_url( '/' ),
 		'name'        => $name,
 		'description' => get_bloginfo( 'description' ),
@@ -770,7 +772,7 @@ function sos_schema_build_website( $fields, $organization_id ) {
 		$website['publisher'] = array( '@id' => $organization_id );
 	}
 
-	return sos_schema_clean_value( $website );
+	return clean_value( $website );
 }
 
 /**
@@ -782,14 +784,14 @@ function sos_schema_build_website( $fields, $organization_id ) {
  * @param string $primary_image_id ImageObject @id, or an empty string.
  * @return array
  */
-function sos_schema_build_webpage( $page_url, $website_id, $breadcrumb_id, $primary_image_id ) {
+function build_webpage( $page_url, $website_id, $breadcrumb_id, $primary_image_id ) {
 	if ( '' === $page_url ) {
 		return array();
 	}
 
 	$webpage = array(
 		'@type'      => ( is_singular() || is_front_page() ) ? 'WebPage' : 'CollectionPage',
-		'@id'        => sos_schema_entity_id( 'webpage', $page_url ),
+		'@id'        => entity_id( 'webpage', $page_url ),
 		'url'        => $page_url,
 		'name'       => sanitize_text_field( wp_get_document_title() ),
 		'inLanguage' => get_bloginfo( 'language' ),
@@ -810,13 +812,13 @@ function sos_schema_build_webpage( $page_url, $website_id, $breadcrumb_id, $prim
 	if ( is_singular() ) {
 		$post = get_queried_object();
 
-		if ( $post instanceof WP_Post ) {
+		if ( $post instanceof \WP_Post ) {
 			$webpage['datePublished'] = get_post_time( 'c', false, $post );
 			$webpage['dateModified']  = get_post_modified_time( 'c', false, $post );
 		}
 	}
 
-	return sos_schema_clean_value( $webpage );
+	return clean_value( $webpage );
 }
 
 /**
@@ -824,7 +826,7 @@ function sos_schema_build_webpage( $page_url, $website_id, $breadcrumb_id, $prim
  *
  * @return void
  */
-function sos_output_organization_schema() {
+function output_schema() {
 	if ( ! function_exists( 'get_fields' ) ) {
 		return;
 	}
@@ -836,9 +838,9 @@ function sos_output_organization_schema() {
 		return;
 	}
 
-	$organization    = sos_schema_build_organization( $fields );
-	$organization_id = sos_schema_organization_id( $fields );
-	$locations       = sos_schema_build_local_businesses(
+	$organization    = build_organization( $fields );
+	$organization_id = organization_id();
+	$locations       = build_local_businesses(
 		$fields,
 		$organization_id,
 		! empty( $organization )
@@ -848,17 +850,17 @@ function sos_output_organization_schema() {
 
 	// Yoast already emits the page-level entities. Only take them over when it
 	// is absent, so the two graphs never describe the same page twice.
-	if ( ! SOS_Plugin::has_yoast_seo() ) {
-		$page_url      = sos_schema_current_url();
-		$breadcrumb    = sos_schema_build_breadcrumb( $fields );
-		$primary_image = sos_schema_build_primary_image( $page_url );
+	if ( ! Plugin::has_yoast_seo() ) {
+		$page_url      = current_url();
+		$breadcrumb    = build_breadcrumb( $fields );
+		$primary_image = build_primary_image( $page_url );
 
-		$website = sos_schema_build_website(
+		$website = build_website(
 			$fields,
 			! empty( $organization ) ? $organization_id : ''
 		);
 
-		$webpage = sos_schema_build_webpage(
+		$webpage = build_webpage(
 			$page_url,
 			$website['@id'] ?? '',
 			$breadcrumb['@id'] ?? '',

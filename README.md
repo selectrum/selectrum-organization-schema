@@ -10,6 +10,7 @@ This WordPress plugin:
 - Adds a `BreadcrumbList` for the current page, generated from the page hierarchy and toggled from the Breadcrumb tab.
 - Adds `WebSite`, `WebPage`, and a primary `ImageObject` when no other plugin owns the page-level graph.
 - Generates canonical `@id` values, using Yoast's fragment conventions so both graphs interlink.
+- The Organization `@id` is generated, not configurable, so it always matches what Yoast's references resolve against.
 - Supports additional JSON-LD properties.
 - Sets every non-tab ACF field wrapper to 33% width.
 

@@ -4,7 +4,7 @@ Tags: schema, seo, json-ld, acf, localbusiness
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,12 +26,19 @@ Adds an ACF PRO options page for Organization and LocalBusiness schema and outpu
 
 == Changelog ==
 
+= 2.0.0 =
+* Breaking: every identifier moved to the Selectrum house naming convention. Stored settings are NOT migrated and must be re-entered on each site.
+* Code namespaced under Selectrum\OrganizationSchema. Constants renamed from SOS_* to SELECTRUM_OS_*.
+* ACF field names prefixed selectrum_os_*, so previously saved values are orphaned.
+* Options page slug changed to selectrum-os-schema.
+
 = 1.1.0 =
 * No longer suppresses Yoast SEO's entire schema graph. Only Yoast's Organization piece is replaced, so its WebPage, Article, and Person entities are preserved.
 * Added a Breadcrumb tab with an Active / Inactive toggle, active by default.
 * Outputs BreadcrumbList JSON-LD for the trail leading to the current page.
 * Added WebSite, WebPage, and primary ImageObject entities for sites without Yoast SEO.
-* Schema @ID fields are now optional. Canonical identifiers are generated when they are left blank.
+* Removed the Organization Schema @ID field. The identifier is now always generated, so it cannot drift from the value Yoast's references point at.
+* The per-location Schema @ID field is now optional and derives from the location name when left blank.
 
 = 1.0.1 =
 * Added self-hosted update support via GitHub releases.
