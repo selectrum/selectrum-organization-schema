@@ -46,8 +46,8 @@
         "name": "schema_id",
         "aria-label": "",
         "type": "text",
-        "instructions": "The LocalBusiness locations will reference this value through branchOf.",
-        "required": 1,
+        "instructions": "Optional. Leave blank to generate a canonical identifier automatically. The LocalBusiness locations reference this value through branchOf.",
+        "required": 0,
         "conditional_logic": 0,
         "wrapper": {
           "width": "50",
@@ -535,8 +535,8 @@
             "name": "schema_id",
             "aria-label": "",
             "type": "text",
-            "instructions": "Use a unique, stable ID for this location.",
-            "required": 1,
+            "instructions": "Optional. Leave blank to derive a stable identifier from the location name.",
+            "required": 0,
             "conditional_logic": 0,
             "wrapper": {
               "width": "33",
@@ -1001,6 +1001,43 @@
             "new_lines": ""
           }
         ]
+      },
+      {
+        "key": "field_a1c3e5b7d9f02",
+        "label": "Breadcrumb",
+        "name": "",
+        "aria-label": "",
+        "type": "tab",
+        "instructions": "",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        },
+        "placement": "top",
+        "endpoint": 0
+      },
+      {
+        "key": "field_b2d4f6a8c0e13",
+        "label": "Breadcrumb Schema",
+        "name": "schema_enable_breadcrumb_schema",
+        "aria-label": "",
+        "type": "true_false",
+        "instructions": "Output BreadcrumbList JSON-LD for the trail leading to the current page, generated automatically from the page hierarchy. Ignored while Yoast SEO is active, because Yoast emits its own breadcrumbs and two would conflict.",
+        "required": 0,
+        "conditional_logic": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        },
+        "message": "",
+        "default_value": 1,
+        "ui": 1,
+        "ui_on_text": "Active",
+        "ui_off_text": "Inactive"
       }
     ],
     "location": [

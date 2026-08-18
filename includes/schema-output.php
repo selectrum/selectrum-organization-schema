@@ -32,6 +32,84 @@ function sos_schema_clean_value( $value ) {
 }
 
 /**
+ * Build a schema @id from a base URL and a fragment.
+ *
+ * The fragments follow Yoast's conventions ("#organization", "#website",
+ * "#webpage", "#breadcrumb", "#primaryimage"). Sharing those identifiers means
+ * that when Yoast is active, its own references resolve to these entities
+ * instead of dangling.
+ *
+ * @param string $fragment Fragment name, without the leading hash.
+ * @param string $url      Base URL. Defaults to the site home.
+ * @return string
+ */
+function sos_schema_entity_id( $fragment, $url = '' ) {
+	if ( '' === $url ) {
+		$url = home_url( '/' );
+	}
+
+	return esc_url_raw( $url ) . '#' . $fragment;
+}
+
+/**
+ * Resolve the Organization @id.
+ *
+ * The "Organization Schema @ID" field is honoured when set, so existing
+ * configurations keep working. When it is empty a canonical identifier is
+ * generated, which removes the chance of a typo silently breaking every
+ * branchOf reference in the graph.
+ *
+ * @param array $fields Options-page fields.
+ * @return string
+ */
+function sos_schema_organization_id( $fields ) {
+	$override = esc_url_raw( $fields['schema_id'] ?? '' );
+
+	return '' !== $override ? $override : sos_schema_entity_id( 'organization' );
+}
+
+/**
+ * Resolve the canonical URL of the current request.
+ *
+ * @return string
+ */
+function sos_schema_current_url() {
+	$url = '';
+
+	// Checked before is_home() so a blog-as-front-page resolves to the home URL.
+	if ( is_front_page() ) {
+		$url = home_url( '/' );
+	} elseif ( is_singular() ) {
+		$url = get_permalink( get_queried_object_id() );
+	} elseif ( is_home() ) {
+		$posts_page_id = (int) get_option( 'page_for_posts' );
+		$url           = $posts_page_id ? get_permalink( $posts_page_id ) : home_url( '/' );
+	} elseif ( is_category() || is_tag() || is_tax() ) {
+		$term = get_queried_object();
+		$url  = $term instanceof WP_Term ? get_term_link( $term ) : '';
+	} elseif ( is_post_type_archive() ) {
+		$post_type = get_query_var( 'post_type' );
+
+		// The query var is an array on archives that span several post types.
+		if ( is_array( $post_type ) ) {
+			$post_type = reset( $post_type );
+		}
+
+		$url = $post_type ? get_post_type_archive_link( $post_type ) : '';
+	} elseif ( is_author() ) {
+		$url = get_author_posts_url( get_queried_object_id() );
+	} else {
+		global $wp;
+
+		$url = isset( $wp->request ) && '' !== $wp->request
+			? home_url( user_trailingslashit( $wp->request ) )
+			: home_url( '/' );
+	}
+
+	return is_string( $url ) ? esc_url_raw( $url ) : '';
+}
+
+/**
  * Convert an ACF image value to a public URL.
  *
  * Supports ACF image return formats:
@@ -217,12 +295,13 @@ function sos_schema_build_organization( $fields ) {
 		return array();
 	}
 
-	$schema_id = esc_url_raw( $fields['schema_id'] ?? '' );
+	$schema_id = sos_schema_organization_id( $fields );
 	$name      = sanitize_text_field( $fields['schema_name'] ?? '' );
 	$url       = esc_url_raw( $fields['schema_url'] ?? '' );
 
-	// Avoid outputting an incomplete primary entity.
-	if ( ! $schema_id || ! $name || ! $url ) {
+	// Avoid outputting an incomplete primary entity. The @id always resolves
+	// now, so only the descriptive fields are worth checking.
+	if ( ! $name || ! $url ) {
 		return array();
 	}
 
@@ -293,11 +372,16 @@ function sos_schema_build_local_businesses( $fields, $organization_id, $link_to_
 			$type = 'LocalBusiness';
 		}
 
-		$schema_id = esc_url_raw( $location['schema_id'] ?? '' );
 		$name      = sanitize_text_field( $location['schema_name'] ?? '' );
+		$schema_id = esc_url_raw( $location['schema_id'] ?? '' );
 		$address   = sos_schema_build_address( $location['schema_address'] ?? array() );
 
-		// A location needs a unique ID, name, and usable address.
+		// Derive a stable identifier from the location name when none is given.
+		if ( '' === $schema_id && '' !== $name ) {
+			$schema_id = sos_schema_entity_id( 'localbusiness-' . sanitize_title( $name ) );
+		}
+
+		// A location needs a name and a usable address.
 		if ( ! $schema_id || ! $name || empty( $address['streetAddress'] ) || empty( $address['addressLocality'] ) || empty( $address['addressCountry'] ) ) {
 			continue;
 		}
@@ -358,6 +442,384 @@ function sos_schema_build_local_businesses( $fields, $organization_id, $link_to_
 }
 
 /**
+ * Build the crumbs for a singular request.
+ *
+ * Prepends the post type archive (or the blog page for posts), then the
+ * ancestor chain for hierarchical post types, then the post itself.
+ *
+ * @return array
+ */
+function sos_schema_breadcrumb_singular_crumbs() {
+	$post = get_queried_object();
+
+	if ( ! $post instanceof WP_Post ) {
+		return array();
+	}
+
+	$crumbs    = array();
+	$post_type = get_post_type_object( $post->post_type );
+
+	if ( $post_type && $post_type->has_archive ) {
+		$crumbs[] = array(
+			'name' => $post_type->labels->name ?? '',
+			'url'  => get_post_type_archive_link( $post->post_type ),
+		);
+	} elseif ( 'post' === $post->post_type ) {
+		$posts_page_id = (int) get_option( 'page_for_posts' );
+
+		if ( $posts_page_id ) {
+			$crumbs[] = array(
+				'name' => get_the_title( $posts_page_id ),
+				'url'  => get_permalink( $posts_page_id ),
+			);
+		}
+	}
+
+	// Only hierarchical post types return ancestors here.
+	foreach ( array_reverse( get_post_ancestors( $post ) ) as $ancestor_id ) {
+		$crumbs[] = array(
+			'name' => get_the_title( $ancestor_id ),
+			'url'  => get_permalink( $ancestor_id ),
+		);
+	}
+
+	$crumbs[] = array(
+		'name' => get_the_title( $post ),
+		'url'  => get_permalink( $post ),
+	);
+
+	return $crumbs;
+}
+
+/**
+ * Build the crumbs for a taxonomy term archive.
+ *
+ * @return array
+ */
+function sos_schema_breadcrumb_term_crumbs() {
+	$term = get_queried_object();
+
+	if ( ! $term instanceof WP_Term ) {
+		return array();
+	}
+
+	$crumbs    = array();
+	$ancestors = array_reverse( get_ancestors( $term->term_id, $term->taxonomy, 'taxonomy' ) );
+
+	foreach ( $ancestors as $ancestor_id ) {
+		$ancestor = get_term( $ancestor_id, $term->taxonomy );
+
+		if ( $ancestor instanceof WP_Term ) {
+			$crumbs[] = array(
+				'name' => $ancestor->name,
+				'url'  => get_term_link( $ancestor ),
+			);
+		}
+	}
+
+	$crumbs[] = array(
+		'name' => $term->name,
+		'url'  => get_term_link( $term ),
+	);
+
+	return $crumbs;
+}
+
+/**
+ * Build the breadcrumb trail for the current request.
+ *
+ * Returns an ordered list of crumbs starting at the site home and ending on
+ * the current page. Each crumb has a "name" and a "url".
+ *
+ * @param array $fields Options-page fields.
+ * @return array
+ */
+function sos_schema_breadcrumb_trail( $fields ) {
+	$home_name = sanitize_text_field( $fields['schema_name'] ?? '' );
+
+	if ( '' === $home_name ) {
+		$home_name = get_bloginfo( 'name' );
+	}
+
+	$trail = array(
+		array(
+			'name' => $home_name,
+			'url'  => home_url( '/' ),
+		),
+	);
+
+	// The blog index, when a static front page is in use.
+	if ( is_home() ) {
+		$posts_page_id = (int) get_option( 'page_for_posts' );
+
+		if ( $posts_page_id ) {
+			$trail[] = array(
+				'name' => get_the_title( $posts_page_id ),
+				'url'  => get_permalink( $posts_page_id ),
+			);
+		}
+
+		return $trail;
+	}
+
+	if ( is_singular() ) {
+		return array_merge( $trail, sos_schema_breadcrumb_singular_crumbs() );
+	}
+
+	if ( is_category() || is_tag() || is_tax() ) {
+		return array_merge( $trail, sos_schema_breadcrumb_term_crumbs() );
+	}
+
+	if ( is_post_type_archive() ) {
+		$queried_type = get_query_var( 'post_type' );
+
+		// The query var is an array on archives that span several post types.
+		if ( is_array( $queried_type ) ) {
+			$queried_type = reset( $queried_type );
+		}
+
+		$post_type = $queried_type ? get_post_type_object( $queried_type ) : null;
+
+		if ( $post_type ) {
+			$trail[] = array(
+				'name' => $post_type->labels->name ?? '',
+				'url'  => get_post_type_archive_link( $post_type->name ),
+			);
+		}
+
+		return $trail;
+	}
+
+	if ( is_author() ) {
+		$author = get_queried_object();
+
+		if ( $author instanceof WP_User ) {
+			$trail[] = array(
+				'name' => $author->display_name,
+				'url'  => get_author_posts_url( $author->ID ),
+			);
+		}
+
+		return $trail;
+	}
+
+	if ( is_year() || is_month() || is_day() ) {
+		// Read the period from the query vars rather than the first post in
+		// the loop, which is not necessarily the archive being viewed.
+		$year = (int) get_query_var( 'year' );
+
+		$trail[] = array(
+			'name' => (string) $year,
+			'url'  => get_year_link( $year ),
+		);
+
+		if ( is_month() || is_day() ) {
+			global $wp_locale;
+
+			$month = (int) get_query_var( 'monthnum' );
+
+			$trail[] = array(
+				'name' => $wp_locale ? $wp_locale->get_month( $month ) : (string) $month,
+				'url'  => get_month_link( $year, $month ),
+			);
+
+			if ( is_day() ) {
+				$day = (int) get_query_var( 'day' );
+
+				$trail[] = array(
+					'name' => (string) $day,
+					'url'  => get_day_link( $year, $month, $day ),
+				);
+			}
+		}
+	}
+
+	return $trail;
+}
+
+/**
+ * Build the BreadcrumbList entity for the current request.
+ *
+ * @param array $fields Options-page fields.
+ * @return array
+ */
+function sos_schema_build_breadcrumb( $fields ) {
+	if ( empty( $fields['schema_enable_breadcrumb_schema'] ) ) {
+		return array();
+	}
+
+	// Breadcrumbs describe a position in the site hierarchy. The front page,
+	// search results, and error pages do not have one.
+	if ( is_front_page() || is_search() || is_404() ) {
+		return array();
+	}
+
+	$items    = array();
+	$position = 1;
+
+	foreach ( sos_schema_breadcrumb_trail( $fields ) as $crumb ) {
+		$name = sanitize_text_field( $crumb['name'] ?? '' );
+		$url  = $crumb['url'] ?? '';
+
+		// get_term_link() and get_permalink() can both fail.
+		$url = is_string( $url ) ? esc_url_raw( $url ) : '';
+
+		if ( '' === $name || '' === $url ) {
+			continue;
+		}
+
+		$items[] = array(
+			'@type'    => 'ListItem',
+			'position' => $position,
+			'name'     => $name,
+			'item'     => $url,
+		);
+
+		$position++;
+	}
+
+	// A lone "Home" crumb carries nothing worth emitting.
+	if ( count( $items ) < 2 ) {
+		return array();
+	}
+
+	return array(
+		'@type'           => 'BreadcrumbList',
+		'@id'             => sos_schema_entity_id( 'breadcrumb', sos_schema_current_url() ),
+		'itemListElement' => $items,
+	);
+}
+
+/**
+ * Build an ImageObject for an attachment.
+ *
+ * @param int    $attachment_id Attachment ID.
+ * @param string $page_url      URL the image belongs to, used for the @id.
+ * @return array
+ */
+function sos_schema_build_image_object( $attachment_id, $page_url ) {
+	$source = wp_get_attachment_image_src( (int) $attachment_id, 'full' );
+
+	if ( ! is_array( $source ) || empty( $source[0] ) ) {
+		return array();
+	}
+
+	$caption = wp_get_attachment_caption( (int) $attachment_id );
+
+	return sos_schema_clean_value(
+		array(
+			'@type'      => 'ImageObject',
+			'@id'        => sos_schema_entity_id( 'primaryimage', $page_url ),
+			'url'        => esc_url_raw( $source[0] ),
+			'contentUrl' => esc_url_raw( $source[0] ),
+			'width'      => (int) $source[1],
+			'height'     => (int) $source[2],
+			'caption'    => is_string( $caption ) ? sanitize_text_field( $caption ) : '',
+		)
+	);
+}
+
+/**
+ * Build the primary image entity for the current request.
+ *
+ * @param string $page_url Canonical URL of the current request.
+ * @return array
+ */
+function sos_schema_build_primary_image( $page_url ) {
+	if ( ! is_singular() || '' === $page_url ) {
+		return array();
+	}
+
+	$thumbnail_id = get_post_thumbnail_id( get_queried_object_id() );
+
+	if ( ! $thumbnail_id ) {
+		return array();
+	}
+
+	return sos_schema_build_image_object( $thumbnail_id, $page_url );
+}
+
+/**
+ * Build the WebSite entity.
+ *
+ * The sitelinks searchbox that "potentialAction" used to drive was retired by
+ * Google in November 2024, so no SearchAction is emitted here. The entity is
+ * still worth having as the anchor for isPartOf references.
+ *
+ * @param array  $fields          Options-page fields.
+ * @param string $organization_id Organization @id, or an empty string.
+ * @return array
+ */
+function sos_schema_build_website( $fields, $organization_id ) {
+	$name = sanitize_text_field( $fields['schema_name'] ?? '' );
+
+	if ( '' === $name ) {
+		$name = get_bloginfo( 'name' );
+	}
+
+	$website = array(
+		'@type'       => 'WebSite',
+		'@id'         => sos_schema_entity_id( 'website' ),
+		'url'         => home_url( '/' ),
+		'name'        => $name,
+		'description' => get_bloginfo( 'description' ),
+		'inLanguage'  => get_bloginfo( 'language' ),
+	);
+
+	if ( '' !== $organization_id ) {
+		$website['publisher'] = array( '@id' => $organization_id );
+	}
+
+	return sos_schema_clean_value( $website );
+}
+
+/**
+ * Build the WebPage entity for the current request.
+ *
+ * @param string $page_url         Canonical URL of the current request.
+ * @param string $website_id       WebSite @id, or an empty string.
+ * @param string $breadcrumb_id    BreadcrumbList @id, or an empty string.
+ * @param string $primary_image_id ImageObject @id, or an empty string.
+ * @return array
+ */
+function sos_schema_build_webpage( $page_url, $website_id, $breadcrumb_id, $primary_image_id ) {
+	if ( '' === $page_url ) {
+		return array();
+	}
+
+	$webpage = array(
+		'@type'      => ( is_singular() || is_front_page() ) ? 'WebPage' : 'CollectionPage',
+		'@id'        => sos_schema_entity_id( 'webpage', $page_url ),
+		'url'        => $page_url,
+		'name'       => sanitize_text_field( wp_get_document_title() ),
+		'inLanguage' => get_bloginfo( 'language' ),
+	);
+
+	if ( '' !== $website_id ) {
+		$webpage['isPartOf'] = array( '@id' => $website_id );
+	}
+
+	if ( '' !== $breadcrumb_id ) {
+		$webpage['breadcrumb'] = array( '@id' => $breadcrumb_id );
+	}
+
+	if ( '' !== $primary_image_id ) {
+		$webpage['primaryImageOfPage'] = array( '@id' => $primary_image_id );
+	}
+
+	if ( is_singular() ) {
+		$post = get_queried_object();
+
+		if ( $post instanceof WP_Post ) {
+			$webpage['datePublished'] = get_post_time( 'c', false, $post );
+			$webpage['dateModified']  = get_post_modified_time( 'c', false, $post );
+		}
+	}
+
+	return sos_schema_clean_value( $webpage );
+}
+
+/**
  * Output the JSON-LD graph in the document head.
  *
  * @return void
@@ -375,7 +837,7 @@ function sos_output_organization_schema() {
 	}
 
 	$organization    = sos_schema_build_organization( $fields );
-	$organization_id = esc_url_raw( $fields['schema_id'] ?? '' );
+	$organization_id = sos_schema_organization_id( $fields );
 	$locations       = sos_schema_build_local_businesses(
 		$fields,
 		$organization_id,
@@ -383,6 +845,43 @@ function sos_output_organization_schema() {
 	);
 
 	$graph = array();
+
+	// Yoast already emits the page-level entities. Only take them over when it
+	// is absent, so the two graphs never describe the same page twice.
+	if ( ! SOS_Plugin::has_yoast_seo() ) {
+		$page_url      = sos_schema_current_url();
+		$breadcrumb    = sos_schema_build_breadcrumb( $fields );
+		$primary_image = sos_schema_build_primary_image( $page_url );
+
+		$website = sos_schema_build_website(
+			$fields,
+			! empty( $organization ) ? $organization_id : ''
+		);
+
+		$webpage = sos_schema_build_webpage(
+			$page_url,
+			$website['@id'] ?? '',
+			$breadcrumb['@id'] ?? '',
+			$primary_image['@id'] ?? ''
+		);
+
+		if ( $website ) {
+			$graph[] = $website;
+		}
+
+		if ( $webpage ) {
+			$graph[] = $webpage;
+		}
+
+		if ( $breadcrumb ) {
+			$graph[] = $breadcrumb;
+		}
+
+		// Only ever referenced from the WebPage, so it is noise without one.
+		if ( $primary_image && $webpage ) {
+			$graph[] = $primary_image;
+		}
+	}
 
 	if ( $organization ) {
 		$graph[] = $organization;

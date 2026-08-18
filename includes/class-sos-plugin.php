@@ -31,16 +31,38 @@ final class SOS_Plugin {
 			|| class_exists( 'Yoast\WP\SEO\Main' );
 	}
 
+	/**
+	 * Replace only Yoast's Organization piece, leaving the rest of its graph.
+	 *
+	 * Yoast owns the page-level entities (WebSite, WebPage, Article, Person,
+	 * BreadcrumbList) whenever it is active, so suppressing its whole graph
+	 * would delete far more than this plugin puts back.
+	 *
+	 * Because this plugin emits its Organization under the same
+	 * "#organization" identifier Yoast uses, Yoast's own publisher and author
+	 * references keep resolving without any rewriting.
+	 *
+	 * @return void
+	 */
 	public static function register_yoast_schema_filters() {
 		if ( ! self::has_yoast_seo() ) {
 			return;
 		}
 
-		add_filter( 'wpseo_json_ld_output', '__return_false' );
 		add_filter( 'wpseo_schema_graph_pieces', array( __CLASS__, 'disable_yoast_organization_schema_piece' ), 11, 2 );
-		add_filter( 'wpseo_schema_website', array( __CLASS__, 'remove_yoast_organization_reference' ), 11, 1 );
 	}
 
+	/**
+	 * Drop Yoast's Organization piece from its schema graph.
+	 *
+	 * Matched on the class short name rather than a fully-qualified name,
+	 * because Yoast has moved these generators between namespaces across major
+	 * versions.
+	 *
+	 * @param mixed $pieces  Yoast graph pieces.
+	 * @param mixed $context Yoast meta tags context.
+	 * @return mixed
+	 */
 	public static function disable_yoast_organization_schema_piece( $pieces, $context ) {
 		if ( ! is_array( $pieces ) ) {
 			return $pieces;
@@ -50,18 +72,16 @@ final class SOS_Plugin {
 			array_filter(
 				$pieces,
 				static function ( $piece ) {
-					return ! is_a( $piece, 'Yoast\WP\SEO\Generators\Schema\Organization' );
+					if ( ! is_object( $piece ) ) {
+						return true;
+					}
+
+					$class = explode( '\\', get_class( $piece ) );
+
+					return 'Organization' !== end( $class );
 				}
 			)
 		);
-	}
-
-	public static function remove_yoast_organization_reference( $data ) {
-		if ( is_array( $data ) && isset( $data['publisher'] ) ) {
-			unset( $data['publisher'] );
-		}
-
-		return $data;
 	}
 
 	public static function register_acf() {
