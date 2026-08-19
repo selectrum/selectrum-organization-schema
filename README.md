@@ -34,9 +34,29 @@ two conflicting trails on the page.
 - PHP 7.4+
 - Advanced Custom Fields PRO
 
+ACF PRO is enforced at activation: the plugin refuses to activate without it and
+explains why. When ACF PRO is missing on an already-active install, the Plugins
+screen shows a warning under the plugin row and the settings page is withdrawn.
+
+## Where settings come from
+
+The schema builders consume a plain array and never call ACF directly. That array
+is resolved by `Settings::all()`, in this order:
+
+1. ACF's options-page values, while ACF PRO is active.
+2. Otherwise the `selectrum_os_settings` option, a mirror written on every ACF
+   save. This is what keeps the frontend graph intact if ACF PRO is deactivated
+   after the fact, rather than silently dropping every site's Organization
+   entity.
+3. The `selectrum_os_settings` filter, applied last, so a site can supply or
+   override values from code. Keys match the ACF field names.
+
+Only fields prefixed `selectrum_os_` are read, because `get_fields( 'option' )`
+returns every options-page field registered on the site.
+
 ## Installation
 
-1. Upload and activate the ZIP under Plugins → Add New → Upload Plugin.
-2. Activate ACF PRO.
+1. Activate ACF PRO first. Activation of this plugin is blocked without it.
+2. Upload and activate the ZIP under Plugins → Add New → Upload Plugin.
 3. Open Organization Schema in the WordPress admin.
 4. Complete and enable the required entities.

@@ -827,14 +827,9 @@ function build_webpage( $page_url, $website_id, $breadcrumb_id, $primary_image_i
  * @return void
  */
 function output_schema() {
-	if ( ! function_exists( 'get_fields' ) ) {
-		return;
-	}
+	$fields = Settings::all();
 
-	// ACF options-page values are global and retrieved with the "option" post ID.
-	$fields = get_fields( 'option' );
-
-	if ( ! is_array( $fields ) ) {
+	if ( empty( $fields ) ) {
 		return;
 	}
 

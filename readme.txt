@@ -4,7 +4,7 @@ Tags: schema, seo, json-ld, acf, localbusiness
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.0.0
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,6 +25,14 @@ Adds an ACF PRO options page for Organization and LocalBusiness schema and outpu
 * Advanced Custom Fields PRO
 
 == Changelog ==
+
+= 2.1.0 =
+* Activation is now blocked when ACF PRO is not active, with an explanatory message.
+* The Plugins screen shows a dependency warning directly under this plugin's row.
+* Settings are read through a single resolver instead of calling ACF from the output layer.
+* Every save through ACF is mirrored into the selectrum_os_settings option, so the frontend keeps emitting the last saved values if ACF PRO is later deactivated.
+* Added the selectrum_os_settings filter, for supplying or overriding values from code.
+* ACF PRO detection no longer relies on the internal acf_pro class name.
 
 = 2.0.0 =
 * Breaking: every identifier moved to the Selectrum house naming convention. Stored settings are NOT migrated and must be re-entered on each site.

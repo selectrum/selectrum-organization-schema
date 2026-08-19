@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Selectrum Organization Schema
  * Description: Adds an ACF PRO options page for Organization and LocalBusiness schema and outputs connected JSON-LD on the frontend.
- * Version: 2.0.0
+ * Version: 2.1.0
  * Author: Selectrum Communications
  * Text Domain: selectrum-organization-schema
  * Requires at least: 6.0
@@ -18,8 +18,11 @@ define( 'SELECTRUM_OS_PLUGIN_FILE', __FILE__ );
 define( 'SELECTRUM_OS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 require_once SELECTRUM_OS_PLUGIN_DIR . 'lib/plugin-update-checker/plugin-update-checker.php';
+require_once SELECTRUM_OS_PLUGIN_DIR . 'includes/class-settings.php';
 require_once SELECTRUM_OS_PLUGIN_DIR . 'includes/class-plugin.php';
 require_once SELECTRUM_OS_PLUGIN_DIR . 'includes/schema-output.php';
+
+register_activation_hook( __FILE__, array( __NAMESPACE__ . '\Plugin', 'activate' ) );
 
 $selectrum_os_update_checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
 	'https://github.com/selectrum/selectrum-organization-schema/',
